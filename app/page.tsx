@@ -11,7 +11,7 @@ interface Record {
 export default function Home() {
   // TODO: Work with databases
   const [records, setRecords] = useState<Record[]>([
-    { date: '2024-12-28 14:00', value: 85, result: '成功' },
+    { date: '2024-12-28 14:00', value: 85, result: 'success' },
   ]);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
