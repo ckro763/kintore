@@ -1,30 +1,42 @@
 "use client";
 import Head from 'next/head';
+import { useSession } from 'next-auth/react';
+import Login from './components/Login';
+import Logout from './components/Logout';
 import { useState, FormEvent } from 'react';
 
 interface Record {
   date: string;
-  value: number;
-  result: string;
+  type: string;
+  value: number; 
 }
 
 export default function Home() {
-  // TODO: Work with databases
+  // User link by google account
+  const { data: session, status } = useSession();
+  // TODO: Work with databases -> firestore
   const [records, setRecords] = useState<Record[]>([
-    { date: '2024-12-28 14:00', value: 85, result: 'success' },
+    { date: '2024-12-28 14:00',type: "something" ,value: 85},
   ]);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
-
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const date = (form.elements.namedItem('date') as HTMLInputElement).value;
+    let date = (form.elements.namedItem('date') as HTMLInputElement).value;
+    if (date === "") {
+      const now = new Date();
+      date = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    } 
+    date = date.replace("T", " ");
+
+
+    const type = (form.elements.namedItem('type') as HTMLSelectElement).value;
     const value = parseInt((form.elements.namedItem('value') as HTMLInputElement).value);
-    const result = (form.elements.namedItem('result') as HTMLSelectElement).value;
-    setRecords([...records, { date, value, result }]);
+    setRecords([...records, { date, type, value }]);
     form.reset();
     setIsPopupOpen(false);
   };
+
 
   return (
     <>
@@ -33,56 +45,72 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       <header>
-        <h1>untitle</h1>
-          <a href="#" onClick={() => setIsPopupOpen(true)}>記録入力</a>
+        <h1>untitled</h1>
+          <button onClick={() => setIsPopupOpen(true)}>記録入力</button>
         {/* <nav>
           <a href="#list">記録一覧</a>
           <a href="#graph">グラフ表示</a>
           <a href="#calendar">カレンダー</a>
         </nav> */}
       </header>
-
+      {status === 'authenticated' ? (
+        <div>
+          <p>expires: {session.expires}</p>
+          <p>name: {session.user?.name}</p>
+          <p>email: {session.user?.email}</p>
+          <p>id: {session.user?.id}</p>
+          <div>
+            <Logout />
+          </div>
+        </div>
+      ) : (
+        <Login />
+      )}
       {isPopupOpen && (
         <div className="popup-overlay" onClick={() => setIsPopupOpen(false)}>
           <div className="popup" onClick={(e) => e.stopPropagation()}>
             <h2>記録入力</h2>
             <form onSubmit={handleSubmit}>
-              <label htmlFor="date">日付と時間:</label>
-              <input type="datetime-local" id="date" name="date" required />
-
-              <label htmlFor="value">数値:</label>
-              <input type="number" id="value" name="value" required />
-
-              <label htmlFor="result">成否:</label>
-              <select id="result" name="result">
-                <option value="success">成功</option>
-                <option value="fail">失敗</option>
+              <div>
+              <label htmlFor="date">date, time:</label>
+                <input type="datetime-local" id="date" name="date" />
+              </div>
+              <div>
+              <label htmlFor="type">type:</label>
+              <select id="type" name="type">
+                <option value="something">something</option>
+                <option value="another">another</option>
               </select>
 
-              <button type="submit">保存</button>
-              <button type="button" onClick={() => setIsPopupOpen(false)}>キャンセル</button>
+              <label htmlFor="value">amount:</label>
+              <input type="number" id="value" name="value" required />
+              </div>
+
+
+              <button type="submit">save</button>
+              <button type="button" onClick={() => setIsPopupOpen(false)}>cancel</button>
             </form>
           </div>
         </div>
       )}
 
       <section id="list">
-        {/* 4 debugging delete this later */}
-        <h2>記録一覧</h2>
+        {/* 4 debugging, delete it later */}
+        <h2>record</h2>
         <table>
           <thead>
             <tr>
-              <th>日付</th>
-              <th>数値</th>
-              <th>成否</th>
+              <th>date</th>
+              <th>type</th>
+              <th>amount</th>
             </tr>
           </thead>
           <tbody>
             {records.map((record, index) => (
               <tr key={index}>
                 <td>{record.date}</td>
+                <td>{record.type}</td>
                 <td>{record.value}</td>
-                <td>{record.result}</td>
               </tr>
             ))}
           </tbody>
@@ -107,8 +135,6 @@ export default function Home() {
             style={{ border: 0 }}
             width="800"
             height="600"
-            frameBorder="0"
-            scrolling="no"
           ></iframe>
         </div>
       </section>
