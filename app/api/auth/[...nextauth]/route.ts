@@ -1,3 +1,4 @@
+import { getDocumentsByAccountID } from '@/lib/firestore';
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
@@ -10,9 +11,21 @@ const handler = NextAuth({
         }),
     ],
     callbacks: {
-        session({ session, token }) {
+        async jwt({ token, account }) {
+            if (account) {
+                const userDocuments = await getDocumentsByAccountID(+(token.sub as string));
+
+                // ドキュメントが存在する場合は最初のドキュメントからaccountIDを追加
+                if (userDocuments.length > 0) {
+                    token.accountData = userDocuments;
+                }
+            }
+            return token;
+        },
+        async session({ session, token }) {
             if (session.user) {
                 session.user.id = token.sub as string;
+                session.user.account = token.accountData;
             }
             return session;
         },

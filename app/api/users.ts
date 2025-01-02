@@ -16,12 +16,12 @@ export default async function handler(
 
     const { accountID } = req.query;
 
-    if (!accountID || typeof accountID !== 'number') {
-        return res.status(400).json({ error: 'Invalid accountID' });
+    if (!accountID || typeof accountID !== 'string' || Number.isNaN(+accountID)) {
+    return res.status(400).json({ error: 'Invalid accountID' });
     }
 
     try {
-        const documents = await getDocumentsByAccountID(accountID);
+        const documents = await getDocumentsByAccountID(+accountID);
         res.status(200).json({ documents });
     } catch (error) {
         console.error('Firestore error:', error);

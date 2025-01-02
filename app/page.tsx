@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import Login from './components/Login';
 import Logout from './components/Logout';
 import { useState, FormEvent } from 'react';
+import { UserDocument } from '@/lib/firestore';
 
 interface Record {
   date: string;
@@ -15,6 +16,7 @@ export default function Home() {
   // User link by google account
   const { data: session, status } = useSession();
   // TODO: Work with databases -> firestore
+
   const [records, setRecords] = useState<Record[]>([
     { date: '2024-12-28 14:00',type: "something" ,value: 85},
   ]);
@@ -59,6 +61,7 @@ export default function Home() {
           <p>name: {session.user?.name}</p>
           <p>email: {session.user?.email}</p>
           <p>id: {session.user?.id}</p>
+          <p>data: {session.user.account}</p>
           <div>
             <Logout />
           </div>
