@@ -10,7 +10,7 @@ export interface UserDocument {
 
 
 export async function getDocumentsByAccountID(accountID: Number): Promise<UserDocument[]> {
-    const colRef = collection(db, 'users');  // 'users' コレクションを対象
+    const colRef = collection(db, 'master');
     const q = query(colRef, where('accountID', '==', accountID));
 
     const snapshot = await getDocs(q);

@@ -1,10 +1,11 @@
 "use client";
 import Head from 'next/head';
+import { useState, FormEvent } from 'react';
+import { UserDocument } from '@/lib/firestore';
 import { useSession } from 'next-auth/react';
 import Login from './components/Login';
 import Logout from './components/Logout';
-import { useState, FormEvent } from 'react';
-import { UserDocument } from '@/lib/firestore';
+import { GeneratedGraph } from './components/graphGenerator';
 
 interface Record {
   date: string;
@@ -123,10 +124,7 @@ export default function Home() {
       {/* write graph here */}
       <section id="graph">
         <h2>グラフ表示</h2>
-        <div className="graph-container">
-          <canvas id="line-chart"></canvas>
-          <canvas id="pie-chart"></canvas>
-        </div>
+        <GeneratedGraph/>
       </section>
 
       {/* this is a temporaly calender. change later, not google calender. */}
